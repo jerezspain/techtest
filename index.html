@@ -160,10 +160,10 @@
 
 <div class="container">
     <h1>生活科技第二專長班學科測驗</h1>
-    <div class="subtitle">每次隨機抽選 50 題，題目與選項皆自動打散洗牌</div>
+    <div class="subtitle">每次隨機抽選 30 題，題目與選項皆自動打散洗牌</div>
 
     <div class="action-bar">
-        <div id="status-text">已隨機選取 50 題</div>
+        <div id="status-text">已隨機選取 30 題</div>
         <div>
             <button class="btn-restart" onclick="initQuiz()">重新抽題</button>
             <button id="submit-btn" onclick="submitQuiz()">提交答案</button>
@@ -442,17 +442,17 @@ function shuffle(array) {
     return newArray;
 }
 
-// 初始化/抽題
+// 初始化/抽題 (改為抽選 30 題)
 function initQuiz() {
-    // 1. 隨機洗牌所有題目，並選取前 50 題
+    // 1. 隨機洗牌所有題目，並選取前 30 題
     const shuffledDb = shuffle(rawDatabase);
-    const selectedQuestions = shuffledDb.slice(0, 50);
+    const selectedQuestions = shuffledDb.slice(0, 30);
 
-    // 2. 針對選出的 50 題，隨機打散選項並重算正確答案的 key (A, B, C, D)
+    // 2. 針對選出的 30 題，隨機打散選項並重算正確答案的 key (A, B, C, D)
     currentQuiz = selectedQuestions.map(item => {
-        const correctText = item.opts[item.ansIndex]; // 先記錄正確答案的文字內容
+        const correctText = item.opts[item.ansIndex]; // 記錄正確答案內容
         const shuffledOpts = shuffle(item.opts);      // 打散選項
-        const newAnsIndex = shuffledOpts.indexOf(correctText); // 找到新位置的索引
+        const newAnsIndex = shuffledOpts.indexOf(correctText); // 計算新索引
         const optKeys = ['A', 'B', 'C', 'D'];
 
         return {
@@ -468,7 +468,7 @@ function initQuiz() {
     document.getElementById('result-area').innerHTML = '';
     document.getElementById('submit-btn').style.display = 'inline-block';
     
-    // 捲動到頁面頂部
+    // 捲動到頂部
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // 3. 渲染題目至網頁
@@ -503,9 +503,9 @@ function initQuiz() {
     });
 }
 
-// 提交計算分數
+// 提交計算分數 (30 題配分，每題 3.333... 分，答對 30 題為 100 分)
 function submitQuiz() {
-    let score = 0;
+    let correctCount = 0;
     let answeredCount = 0;
 
     currentQuiz.forEach((qObj, index) => {
@@ -517,7 +517,7 @@ function submitQuiz() {
             const userAns = selected.value;
             
             if (userAns === qObj.ansKey) {
-                score += 2; // 每題 2 分，共 100 分
+                correctCount++;
                 document.getElementById(`label-${index}-${userAns}`).classList.add('correct');
                 expDiv.innerHTML = `<span style="color:var(--success-color)">✓ 回答正確</span>`;
             } else {
@@ -535,6 +535,9 @@ function submitQuiz() {
         inputs.forEach(input => input.disabled = true);
     });
 
+    // 計算總分
+    const score = correctCount === 30 ? 100 : Math.round(correctCount * (100 / 30));
+
     // 顯示成果
     const resultArea = document.getElementById('result-area');
     resultArea.innerHTML = `
@@ -542,7 +545,7 @@ function submitQuiz() {
             測驗結束！您的總分為：<span style="color:var(--primary-color); font-size: 1.5em;">${score}</span> / 100 分
             <br>
             <span style="font-size:0.8em; font-weight:normal; color:#666;">
-                (共 50 題，已答 ${answeredCount} 題，答對 ${score/2} 題)
+                (共 30 題，已答 ${answeredCount} 題，答對 ${correctCount} 題)
             </span>
         </div>
     `;
