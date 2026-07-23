@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -100,6 +100,19 @@
             border-radius: 4px;
             font-size: 0.85em;
             margin-right: 8px;
+        }
+
+        .question-img {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .question-img img {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .options-group {
@@ -595,7 +608,7 @@ function shuffle(array) {
     return newArray;
 }
 
-// 初始化/抽題 (改為抽選 30 題)
+// 初始化/抽題 (每次抽選 30 題)
 function initQuiz() {
     // 1. 隨機洗牌所有題目，並選取前 30 題
     const shuffledDb = shuffle(rawDatabase);
@@ -611,6 +624,7 @@ function initQuiz() {
         return {
             cat: item.cat,
             q: item.q,
+            img: item.img || null, // 支援圖片路徑
             opts: shuffledOpts,
             ansKey: optKeys[newAnsIndex]
         };
@@ -642,11 +656,18 @@ function initQuiz() {
             `;
         });
 
+        // 圖片渲染區塊
+        let imgHtml = '';
+        if (qObj.img) {
+            imgHtml = `<div class="question-img"><img src="${qObj.img}" alt="題目圖片 (${qObj.img})" onerror="this.style.display='none'"></div>`;
+        }
+
         qCard.innerHTML = `
             <div class="question-header">
                 <span class="category-tag">${qObj.cat}</span>
                 第 ${index + 1} 題. ${qObj.q.replace(/^\d+\.\s*/, '')}
             </div>
+            ${imgHtml}
             <div class="options-group">
                 ${optionsHtml}
             </div>
@@ -656,7 +677,7 @@ function initQuiz() {
     });
 }
 
-// 提交計算分數 (30 題配分，每題 3.333... 分，答對 30 題為 100 分)
+// 提交計算分數 (30 題配分，每題 3.33 分，答對 30 題為 100 分)
 function submitQuiz() {
     let correctCount = 0;
     let answeredCount = 0;
