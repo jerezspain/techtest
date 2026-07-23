@@ -1,178 +1,195 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生活科技第二專長班學科測驗刷題系統</title>
+    <title>生活科技第二專長班學科測驗 - 無限刷題系統</title>
     <style>
         :root {
-            --primary-color: #0056b3;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --bg-color: #f8f9fa;
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --bg-color: #f4f7f6;
             --card-bg: #ffffff;
+            --text-color: #333333;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg-color);
-            color: #333;
-            line-height: 1.6;
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
             background: var(--card-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
 
         h1 {
-            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
             color: var(--primary-color);
-            margin-bottom: 10px;
         }
 
-        .subtitle {
-            text-align: center;
+        .quiz-info {
+            font-size: 0.95rem;
             color: #666;
-            margin-bottom: 25px;
-            font-size: 0.95em;
         }
 
-        .action-bar {
-            position: sticky;
-            top: 10px;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            margin-bottom: 20px;
-        }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .btn-restart {
-            background-color: #6c757d;
-        }
-
-        .question-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-        }
-
-        .question-header {
-            font-weight: bold;
-            font-size: 1.05em;
-            margin-bottom: 12px;
-            color: #222;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
         }
 
         .category-tag {
             display: inline-block;
-            background: #e9ecef;
-            color: #495057;
-            padding: 2px 8px;
+            background-color: #eef6fb;
+            color: var(--secondary-color);
+            font-size: 0.8rem;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 0.85em;
-            margin-right: 8px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .options-group {
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .option-label {
             display: flex;
             align-items: center;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.15s;
+            transition: all 0.2s ease;
+            background: #fff;
         }
 
         .option-label:hover {
-            background-color: #f1f3f5;
+            border-color: var(--secondary-color);
+            background-color: #f8fafc;
         }
 
-        .option-label input {
-            margin-right: 10px;
+        .option-label input[type="radio"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
         }
 
-        /* 結果顯示樣式 */
-        .correct {
-            background-color: #d4edda !important;
-            border-color: #c3e6cb !important;
-            color: #155724;
-        }
-
-        .incorrect {
-            background-color: #f8d7da !important;
-            border-color: #f5c6cb !important;
-            color: #721c24;
-        }
-
-        .score-box {
+        /* 附圖呈現在題目與選項下方 */
+        .question-image-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #e2e8f0;
             text-align: center;
-            padding: 20px;
-            background: #e3f2fd;
+        }
+
+        .question-image {
+            max-width: 100%;
+            height: auto;
             border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 1.2em;
+            border: 1px solid #ddd;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* 結算頁面樣式 */
+        #result-panel {
+            display: none;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+        }
+
+        .option-label.correct {
+            border-color: var(--correct-color);
+            background-color: #e8f8f5;
+            color: #27ae60;
             font-weight: bold;
         }
 
-        .explanation {
-            margin-top: 10px;
-            font-size: 0.9em;
-            font-weight: bold;
+        .option-label.incorrect {
+            border-color: var(--incorrect-color);
+            background-color: #fadbd8;
+            color: #c0392b;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>生活科技第二專長班學科測驗</h1>
-    <div class="subtitle">每次隨機抽選 30 題，題目與選項皆自動打散洗牌</div>
+    <header>
+        <h1>生活科技第二專長班學科測驗</h1>
+        <div class="quiz-info">本次隨機出題：<strong>30 題</strong> | 每題選項已自動打亂</div>
+    </header>
 
-    <div class="action-bar">
-        <div id="status-text">已隨機選取 30 題</div>
-        <div>
-            <button class="btn-restart" onclick="initQuiz()">重新抽題</button>
-            <button id="submit-btn" onclick="submitQuiz()">提交答案</button>
-        </div>
+    <div id="result-panel">
+        <h2>測驗完成！</h2>
+        <div class="score-display">得分：<span id="score-text">0</span> / 100</div>
+        <p id="accuracy-text"></p>
+        <button class="btn" onclick="initQuiz()">重新開始新測驗</button>
     </div>
 
-    <div id="result-area"></div>
     <form id="quiz-form">
         <div id="questions-container"></div>
+        <button type="button" class="btn" id="submit-btn" onclick="calculateScore()">完成作答並結算分數</button>
     </form>
 </div>
 
@@ -581,133 +598,134 @@ const rawDatabase = [
     { cat: "圖學", q: "依箭頭方向，選出正確的「右視圖」：", img: "p7n6.png", opts: ["A", "B", "C", "D"], ansIndex: 1 }
 ];
 
-let currentQuiz = [];
+let selectedQuestions = [];
 
-// 洗牌演算法 (Fisher-Yates Shuffle)
+// 陣列隨機洗牌演算法 (Fisher-Yates Shuffle)
 function shuffle(array) {
     let currentIndex = array.length, randomIndex;
-    const newArray = JSON.parse(JSON.stringify(array));
     while (currentIndex !== 0) {
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex--;
-        [newArray[currentIndex], newArray[randomIndex]] = [newArray[randomIndex], newArray[currentIndex]];
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
     }
-    return newArray;
+    return array;
 }
 
-// 初始化/抽題 (改為抽選 30 題)
+// 初始化測驗 (隨機抽 30 題與打亂選項)
 function initQuiz() {
-    // 1. 隨機洗牌所有題目，並選取前 30 題
-    const shuffledDb = shuffle(rawDatabase);
-    const selectedQuestions = shuffledDb.slice(0, 30);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('result-panel').style.display = 'none';
+    document.getElementById('submit-btn').style.display = 'block';
 
-    // 2. 針對選出的 30 題，隨機打散選項並重算正確答案的 key (A, B, C, D)
-    currentQuiz = selectedQuestions.map(item => {
-        const correctText = item.opts[item.ansIndex]; // 記錄正確答案內容
-        const shuffledOpts = shuffle(item.opts);      // 打散選項
-        const newAnsIndex = shuffledOpts.indexOf(correctText); // 計算新索引
-        const optKeys = ['A', 'B', 'C', 'D'];
+    // 1. 深拷貝題庫
+    let pool = JSON.parse(JSON.stringify(rawQuestionBank));
+    
+    // 2. 打亂題庫順序並取出前 30 題 (若少於 30 題則取全數)
+    pool = shuffle(pool);
+    const count = Math.min(30, pool.length);
+    selectedQuestions = pool.slice(0, count);
 
-        return {
-            cat: item.cat,
-            q: item.q,
-            opts: shuffledOpts,
-            ansKey: optKeys[newAnsIndex]
-        };
+    // 3. 處理每題的選項洗牌與記錄正確解答
+    selectedQuestions.forEach(q => {
+        const originalCorrectText = q.options[q.answerIndex];
+        
+        // 將選項包裝成物件以利打亂後追蹤
+        let optionObjects = q.options.map(text => ({
+            text: text,
+            isCorrect: (text === originalCorrectText)
+        }));
+
+        // 打亂選項
+        q.shuffledOptions = shuffle(optionObjects);
     });
 
+    // 4. 渲染至頁面
+    renderQuiz();
+}
+
+// 渲染題目 HTML
+function renderQuiz() {
     const container = document.getElementById('questions-container');
     container.innerHTML = '';
-    document.getElementById('result-area').innerHTML = '';
-    document.getElementById('submit-btn').style.display = 'inline-block';
-    
-    // 捲動到頂部
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // 3. 渲染題目至網頁
-    currentQuiz.forEach((qObj, index) => {
-        const qCard = document.createElement('div');
-        qCard.className = 'question-card';
-        qCard.id = `q-card-${index}`;
+    selectedQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = `card-${index}`;
 
-        let optionsHtml = '';
-        const optKeys = ['A', 'B', 'C', 'D'];
-        qObj.opts.forEach((optStr, optIdx) => {
-            const key = optKeys[optIdx];
-            optionsHtml += `
-                <label class="option-label" id="label-${index}-${key}">
-                    <input type="radio" name="q-${index}" value="${key}">
-                    (${key}) ${optStr}
+        // 題目與類別標籤
+        let html = `
+            <span class="category-tag">${q.category}</span>
+            <div class="question-title">${index + 1}. ${q.question}</div>
+            <div class="options-container">
+        `;
+
+        // 選項區塊 (選項隨機更動)
+        q.shuffledOptions.forEach((opt, optIndex) => {
+            html += `
+                <label class="option-label" id="label-${index}-${optIndex}">
+                    <input type="radio" name="question-${index}" value="${optIndex}">
+                    <span>${opt.text}</span>
                 </label>
             `;
         });
 
-        qCard.innerHTML = `
-            <div class="question-header">
-                <span class="category-tag">${qObj.cat}</span>
-                第 ${index + 1} 題. ${qObj.q.replace(/^\d+\.\s*/, '')}
-            </div>
-            <div class="options-group">
-                ${optionsHtml}
-            </div>
-            <div class="explanation" id="exp-${index}"></div>
-        `;
-        container.appendChild(qCard);
-    });
-}
+        html += `</div>`;
 
-// 提交計算分數 (30 題配分，每題 3.333... 分，答對 30 題為 100 分)
-function submitQuiz() {
-    let correctCount = 0;
-    let answeredCount = 0;
-
-    currentQuiz.forEach((qObj, index) => {
-        const selected = document.querySelector(`input[name="q-${index}"]:checked`);
-        const expDiv = document.getElementById(`exp-${index}`);
-        
-        if (selected) {
-            answeredCount++;
-            const userAns = selected.value;
-            
-            if (userAns === qObj.ansKey) {
-                correctCount++;
-                document.getElementById(`label-${index}-${userAns}`).classList.add('correct');
-                expDiv.innerHTML = `<span style="color:var(--success-color)">✓ 回答正確</span>`;
-            } else {
-                document.getElementById(`label-${index}-${userAns}`).classList.add('incorrect');
-                document.getElementById(`label-${index}-${qObj.ansKey}`).classList.add('correct');
-                expDiv.innerHTML = `<span style="color:var(--danger-color)">✗ 回答錯誤！正確答案為 (${qObj.ansKey})</span>`;
-            }
-        } else {
-            document.getElementById(`label-${index}-${qObj.ansKey}`).classList.add('correct');
-            expDiv.innerHTML = `<span style="color:var(--danger-color)">未作答！正確答案為 (${qObj.ansKey})</span>`;
+        // 附圖區塊 (呈現於題目與選項的下方)
+        if (q.image) {
+            html += `
+                <div class="question-image-container">
+                    <img src="${q.image}" alt="題目附圖" class="question-image">
+                </div>
+            `;
         }
 
-        // 鎖定所有選項
-        const inputs = document.querySelectorAll(`input[name="q-${index}"]`);
-        inputs.forEach(input => input.disabled = true);
+        card.innerHTML = html;
+        container.appendChild(card);
     });
-
-    // 計算總分
-    const score = correctCount === 30 ? 100 : Math.round(correctCount * (100 / 30));
-
-    // 顯示成果
-    const resultArea = document.getElementById('result-area');
-    resultArea.innerHTML = `
-        <div class="score-box">
-            測驗結束！您的總分為：<span style="color:var(--primary-color); font-size: 1.5em;">${score}</span> / 100 分
-            <br>
-            <span style="font-size:0.8em; font-weight:normal; color:#666;">
-                (共 30 題，已答 ${answeredCount} 題，答對 ${correctCount} 題)
-            </span>
-        </div>
-    `;
-
-    document.getElementById('submit-btn').style.display = 'none';
-    resultArea.scrollIntoView({ behavior: 'smooth' });
 }
 
-// 頁面載入時自動初始化
+// 結算分數與標示答案
+function calculateScore() {
+    let correctCount = 0;
+
+    selectedQuestions.forEach((q, qIndex) => {
+        const selectedRadio = document.querySelector(`input[name="question-${qIndex}"]:checked`);
+        const userChoice = selectedRadio ? parseInt(selectedRadio.value) : -1;
+
+        q.shuffledOptions.forEach((opt, optIndex) => {
+            const label = document.getElementById(`label-${qIndex}-${optIndex}`);
+            const radio = label.querySelector('input');
+            radio.disabled = true; // 鎖定作答
+
+            if (opt.isCorrect) {
+                label.classList.add('correct'); // 標示正確解答
+            }
+
+            if (userChoice === optIndex) {
+                if (opt.isCorrect) {
+                    correctCount++;
+                } else {
+                    label.classList.add('incorrect'); // 標示使用者答錯選項
+                }
+            }
+        });
+    });
+
+    // 計算百分制總分
+    const score = Math.round((correctCount / selectedQuestions.length) * 100);
+
+    // 顯示結算畫面
+    document.getElementById('score-text').innerText = score;
+    document.getElementById('accuracy-text').innerText = `共 ${selectedQuestions.length} 題，答對 ${correctCount} 題`;
+    document.getElementById('result-panel').style.display = 'block';
+    document.getElementById('submit-btn').style.display = 'none';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 頁面載入後自動初始化
 window.onload = initQuiz;
 </script>
 
