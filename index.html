@@ -77,7 +77,20 @@
             margin-bottom: 15px;
         }
 
-        .options-container {
+        .question-img {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .question-img img {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .options-group {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -611,32 +624,26 @@ function shuffle(array) {
     return array;
 }
 
-// 初始化測驗 (隨機抽 30 題與打亂選項)
+// 初始化/抽題 (每次抽選 30 題)
 function initQuiz() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.getElementById('result-panel').style.display = 'none';
-    document.getElementById('submit-btn').style.display = 'block';
+    // 1. 隨機洗牌所有題目，並選取前 30 題
+    const shuffledDb = shuffle(rawDatabase);
+    const selectedQuestions = shuffledDb.slice(0, 30);
 
-    // 1. 深拷貝題庫
-    let pool = JSON.parse(JSON.stringify(rawQuestionBank));
-    
-    // 2. 打亂題庫順序並取出前 30 題 (若少於 30 題則取全數)
-    pool = shuffle(pool);
-    const count = Math.min(30, pool.length);
-    selectedQuestions = pool.slice(0, count);
+    // 2. 針對選出的 30 題，隨機打散選項並重算正確答案的 key (A, B, C, D)
+    currentQuiz = selectedQuestions.map(item => {
+        const correctText = item.opts[item.ansIndex]; // 記錄正確答案內容
+        const shuffledOpts = shuffle(item.opts);      // 打散選項
+        const newAnsIndex = shuffledOpts.indexOf(correctText); // 計算新索引
+        const optKeys = ['A', 'B', 'C', 'D'];
 
-    // 3. 處理每題的選項洗牌與記錄正確解答
-    selectedQuestions.forEach(q => {
-        const originalCorrectText = q.options[q.answerIndex];
-        
-        // 將選項包裝成物件以利打亂後追蹤
-        let optionObjects = q.options.map(text => ({
-            text: text,
-            isCorrect: (text === originalCorrectText)
-        }));
-
-        // 打亂選項
-        q.shuffledOptions = shuffle(optionObjects);
+        return {
+            cat: item.cat,
+            q: item.q,
+            img: item.img || null, // 支援圖片路徑
+            opts: shuffledOpts,
+            ansKey: optKeys[newAnsIndex]
+        };
     });
 
     // 4. 渲染至頁面
@@ -670,24 +677,29 @@ function renderQuiz() {
             `;
         });
 
-        html += `</div>`;
-
-        // 附圖區塊 (呈現於題目與選項的下方)
-        if (q.image) {
-            html += `
-                <div class="question-image-container">
-                    <img src="${q.image}" alt="題目附圖" class="question-image">
-                </div>
-            `;
+        // 圖片渲染區塊
+        let imgHtml = '';
+        if (qObj.img) {
+            imgHtml = `<div class="question-img"><img src="${qObj.img}" alt="題目圖片 (${qObj.img})" onerror="this.style.display='none'"></div>`;
         }
 
-        card.innerHTML = html;
-        container.appendChild(card);
+        qCard.innerHTML = `
+            <div class="question-header">
+                <span class="category-tag">${qObj.cat}</span>
+                第 ${index + 1} 題. ${qObj.q.replace(/^\d+\.\s*/, '')}
+            </div>
+            ${imgHtml}
+            <div class="options-group">
+                ${optionsHtml}
+            </div>
+            <div class="explanation" id="exp-${index}"></div>
+        `;
+        container.appendChild(qCard);
     });
 }
 
-// 結算分數與標示答案
-function calculateScore() {
+// 提交計算分數 (30 題配分，每題 3.33 分，答對 30 題為 100 分)
+function submitQuiz() {
     let correctCount = 0;
 
     selectedQuestions.forEach((q, qIndex) => {
